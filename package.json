@@ -1,17 +1,18 @@
 {
-  "name": "horn-order-exit",
+  "name": "horn-order-entry",
   "version": "1.0.0",
-  "description": "HORN exit strategy",
+  "description": "HORN entry strategy",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "login": "node login.js",
     "build": "rm -rf build && cd ui && npm run build --prod && cp -r build ../"
   },
   "keywords": [
     "Zerodha",
     "Options",
     "Horn",
-    "Exit"
+    "Entry"
   ],
   "author": "Anurag Roy",
   "license": "ISC",

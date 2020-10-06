@@ -17,7 +17,7 @@ const StockInputForm = ({ label, tType, handleChange }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4001/mapper/byName", { params: { name: "NIFTY" } })
+      .get("http://localhost:4002/mapper/byName", { params: { name: "NIFTY" } })
       .then((result) => {
         setData(result.data);
       });

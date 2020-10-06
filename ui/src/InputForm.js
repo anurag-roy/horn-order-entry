@@ -27,7 +27,7 @@ const InputForm = () => {
       alert("Missing entry price. Please input entry price and try again.");
     } else {
       axios
-        .post("http://localhost:4001/watchHornEntry", {
+        .post("http://localhost:4002/orderHornEntry", {
           stockA,
           stockB,
           stockC,
@@ -87,7 +87,7 @@ const InputForm = () => {
             style={{ background: green[600], color: "white" }}
             onClick={proceedButton}
           >
-            Watch Market
+            Enter Market
           </Button>
         </div>
       </div>
