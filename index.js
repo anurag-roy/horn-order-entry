@@ -11,7 +11,7 @@ const apiKey = process.env.API_KEY;
 const accessToken = process.env.ACCESS_TOKEN;
 
 const kc = new KiteConnect({
-  api_key: apiKey,
+	api_key: apiKey,
 });
 kc.setAccessToken(accessToken);
 
@@ -23,144 +23,144 @@ app.use(express.static(path.join(__dirname, "build")));
 app.use("/mapper", mapperRouter);
 
 app.post("/orderHornEntry", ({ body }, response) => {
-  orderHornEntry(body.stockA, body.stockB, body.stockC, body.stockD, Number(body.entryPrice));
-  response.send("Check console.");
+	orderHornEntry(body.stockA, body.stockB, body.stockC, body.stockD, Number(body.entryPrice));
+	response.send("Check console.");
 });
 
 // Order function
 const order = async (stock, price) => {
-  const timestamp = new Date();
-  console.log(
-    `Order placed for ${stock.exchange}:${stock.tradingsymbol}, Transaction: ${stock.transactionType}, product: ${stock.product}, quantity: ${stock.quantity}, price: ${price}`,
-  );
-  console.log(`Time of order: ${timestamp.toUTCString()}`);
+	const timestamp = new Date();
+	console.log(
+		`Order placed for ${stock.exchange}:${stock.tradingsymbol}, Transaction: ${stock.transactionType}, product: ${stock.product}, quantity: ${stock.quantity}, price: ${price}`,
+	);
+	console.log(`Time of order: ${timestamp.toUTCString()}`);
 
-  return kc.placeOrder("regular", {
-    exchange: stock.exchange,
-    tradingsymbol: stock.tradingsymbol,
-    transaction_type: stock.transactionType,
-    quantity: stock.quantity,
-    product: stock.product,
-    price: price,
-    order_type: "LIMIT",
-  });
+	return kc.placeOrder("regular", {
+		exchange: stock.exchange,
+		tradingsymbol: stock.tradingsymbol,
+		transaction_type: stock.transactionType,
+		quantity: stock.quantity,
+		product: stock.product,
+		price: price,
+		order_type: "LIMIT",
+	});
 
-  // return `Order placed for ${stock.exchange}:${stock.tradingsymbol}, Transaction: ${stock.transactionType}, product: ${stock.product}, quantity: ${stock.quantity}`;
+	// return `Order placed for ${stock.exchange}:${stock.tradingsymbol}, Transaction: ${stock.transactionType}, product: ${stock.product}, quantity: ${stock.quantity}`;
 };
 
 const placeOrder = async (stockArray, priceArray) => {
-  const promiseArray = [];
+	const promiseArray = [];
 
-  for (let i = 0; i < 4; i++) {
-    promiseArray.push(order(stockArray[i], priceArray[i] + 0.1));
-  }
+	for (let i = 0; i < 4; i++) {
+		promiseArray.push(order(stockArray[i], priceArray[i] + 0.1));
+	}
 
-  await Promise.all(promiseArray);
+	await Promise.all(promiseArray);
 
-  const positions = await kc.getPositions();
-  console.log(positions);
+	const positions = await kc.getPositions();
+	console.log(positions);
 };
 
 const orderHornEntry = (stockA, stockB, stockC, stockD, entryPrice) => {
-  // Extract instruments tokens for each stock
-  const aToken = parseInt(stockA.instrument_token);
-  const bToken = parseInt(stockB.instrument_token);
-  const cToken = parseInt(stockC.instrument_token);
-  const dToken = parseInt(stockD.instrument_token);
+	// Extract instruments tokens for each stock
+	const aToken = parseInt(stockA.instrument_token);
+	const bToken = parseInt(stockB.instrument_token);
+	const cToken = parseInt(stockC.instrument_token);
+	const dToken = parseInt(stockD.instrument_token);
 
-  // Extract quantity for each stock
-  const aQty = stockA.quantity;
-  const bQty = stockB.quantity;
-  const cQty = stockC.quantity;
-  const dQty = stockD.quantity;
+	// Extract quantity for each stock
+	const aQty = stockA.quantity;
+	const bQty = stockB.quantity;
+	const cQty = stockC.quantity;
+	const dQty = stockD.quantity;
 
-  // Declare variables which will be updated on each tick
-  let aBuyersBid, bSellersBid, cSellersBid, dBuyersBid;
+	// Declare variables which will be updated on each tick
+	let aBuyersBid, bSellersBid, cSellersBid, dBuyersBid;
 
-  // Flag to determine if order is already placed or not
-  let placedOrder = false;
+	// Flag to determine if order is already placed or not
+	let placedOrder = false;
 
-  // Entry Condition for HORN strategy
-  const lookForEntry = () => {
-    const a = aBuyersBid * aQty;
-    const b = bSellersBid * bQty;
-    const c = cSellersBid * cQty;
-    const d = dBuyersBid * dQty;
+	// Entry Condition for HORN strategy
+	const lookForEntry = () => {
+		const a = aBuyersBid * aQty;
+		const b = bSellersBid * bQty;
+		const c = cSellersBid * cQty;
+		const d = dBuyersBid * dQty;
 
-    const net = (a - b - c + d) / 75;
+		const net = (a - b - c + d) / 75;
 
-    if (net > entryPrice) {
-      console.log(
-        `Net: ${net}, Entry Price: ${entryPrice}. Condition satisfied. Would have entered.`,
-      );
-      return true;
-    }
+		if (net > entryPrice) {
+			console.log(
+				`Net: ${net}, Entry Price: ${entryPrice}. Condition satisfied. Would have entered.`,
+			);
+			return true;
+		}
 
-    console.log(`Net: ${net}, Entry Price: ${entryPrice}. Condition not satisfied.`);
-    return false;
-  };
+		console.log(`Net: ${net}, Entry Price: ${entryPrice}. Condition not satisfied.`);
+		return false;
+	};
 
-  const ticker = new KiteTicker({
-    api_key: apiKey,
-    access_token: accessToken,
-  });
+	const ticker = new KiteTicker({
+		api_key: apiKey,
+		access_token: accessToken,
+	});
 
-  ticker.connect();
+	ticker.connect();
 
-  ticker.on("connect", () => {
-    // console.log("Subscribing to stocks...");
-    const items = [aToken, bToken, cToken, dToken];
-    ticker.subscribe(items);
-    ticker.setMode(ticker.modeFull, items);
-  });
+	ticker.on("connect", () => {
+		// console.log("Subscribing to stocks...");
+		const items = [aToken, bToken, cToken, dToken];
+		ticker.subscribe(items);
+		ticker.setMode(ticker.modeFull, items);
+	});
 
-  ticker.on("ticks", (ticks) => {
-    if (!placedOrder) {
-      // Check tick and update corresponding stock bid price
-      // 2nd Seller's Bud for stock to BUY
-      // 1st Buyer's Bid for stock to SELL
-      ticks.forEach((t) => {
-        if (t.instrument_token == aToken) {
-          if (t.depth) {
-            if (t.depth.buy) {
-              aBuyersBid = t.depth.buy[0].price;
-            }
-          }
-        } else if (t.instrument_token == bToken) {
-          if (t.depth) {
-            if (t.depth.sell) {
-              bSellersBid = t.depth.sell[1].price;
-            }
-          }
-        } else if (t.instrument_token == cToken) {
-          if (t.depth) {
-            if (t.depth.sell) {
-              cSellersBid = t.depth.sell[1].price;
-            }
-          }
-        } else if (t.instrument_token == dToken) {
-          if (t.depth) {
-            if (t.depth.buy) {
-              dBuyersBid = t.depth.buy[0].price;
-            }
-          }
-        }
-      });
+	ticker.on("ticks", (ticks) => {
+		if (!placedOrder) {
+			// Check tick and update corresponding stock bid price
+			// 2nd Seller's Bud for stock to BUY
+			// 1st Buyer's Bid for stock to SELL
+			ticks.forEach((t) => {
+				if (t.instrument_token == aToken) {
+					if (t.depth) {
+						if (t.depth.buy) {
+							aBuyersBid = t.depth.buy[0].price;
+						}
+					}
+				} else if (t.instrument_token == bToken) {
+					if (t.depth) {
+						if (t.depth.sell) {
+							bSellersBid = t.depth.sell[1].price;
+						}
+					}
+				} else if (t.instrument_token == cToken) {
+					if (t.depth) {
+						if (t.depth.sell) {
+							cSellersBid = t.depth.sell[1].price;
+						}
+					}
+				} else if (t.instrument_token == dToken) {
+					if (t.depth) {
+						if (t.depth.buy) {
+							dBuyersBid = t.depth.buy[0].price;
+						}
+					}
+				}
+			});
 
-      // Look for Entry
-      if (lookForEntry()) {
-        placedOrder = true;
-        placeOrder(
-          [stockA, stockB, stockC, stockD],
-          [aBuyersBid, bSellersBid, cSellersBid, dBuyersBid],
-        );
-      }
-    } else if (placedOrder) {
-      ticker.disconnect();
-    }
-  });
+			// Look for Entry
+			if (lookForEntry()) {
+				placedOrder = true;
+				placeOrder(
+					[stockA, stockB, stockC, stockD],
+					[aBuyersBid + 0.1, bSellersBid, cSellersBid, dBuyersBid + 0.1],
+				);
+			}
+		} else if (placedOrder) {
+			ticker.disconnect();
+		}
+	});
 };
 
 app.listen(4002, () => {
-  console.log("Horn Entry Order started on http://localhost:4002");
+	console.log("Horn Entry Order started on http://localhost:4002");
 });
